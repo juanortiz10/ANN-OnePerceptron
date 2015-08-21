@@ -3,7 +3,7 @@ var inputs_xor=[[0,0],[0,1],[1,0],[1,1]];
 var expected_ouputs=[0,1,1,0];
 var umbral=0.5;
 var signo_values=[];
-
+var final_errors=[];
 //function that generates two values for the w's
 function generate_w(){
   var weights=[];
@@ -26,13 +26,43 @@ function calculate_error(){
   }
   return final_sum;
 }
-//function able to calculate weights with x's
-function init(){
+function calculate(){
   var wei=generate_w();
   for(i=0; i<expected_ouputs.length; i++){
     signo_values.push(calculate_signoidal((inputs_xor[i][0]*wei[0])+(inputs_xor[i][1]*wei[1])));
   }
-  calculate_error();
+}
+
+function init(){
+  calculate();
+  if(final_errors.length<2){
+    final_errors.push(calculate_error());
+    signo_values.length=0;
+    init();
+  }else {
+    console.log("First two numbers to compare ",final_errors);
+    var count0=0, count1=0;
+    while (!(count0==4 || count1==4)) {
+      if (final_errors[1] < final_errors[0]){
+              final_errors.splice(0,1);
+              console.log(final_errors);
+              signo_values.length=0;
+              calculate();
+              final_errors.splice(0,0,calculate_error());
+              count1++;
+              count0=0;
+      }else{
+              final_errors.splice(1,1);
+              console.log(final_errors);
+              signo_values.length=0;
+              calculate();
+              final_errors.splice(1,0,calculate_error());
+              count0++;
+              count1=0;
+      }
+    }
+
+  }
 }
 
 //Initialize main
