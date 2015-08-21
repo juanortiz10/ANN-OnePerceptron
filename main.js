@@ -4,6 +4,8 @@ var expected_ouputs=[0,1,1,0];
 var umbral=0.5;
 var signo_values=[];
 var final_errors=[];
+var ouput_of_weight=[];
+var final_ouputs=[];
 //function that generates two values for the w's
 function generate_w(){
   var weights=[];
@@ -17,7 +19,6 @@ function generate_w(){
 function calculate_signoidal(z){
   return 1/(1+Math.exp(-z));
 }
-
 //function able to calculate the error function, it will be used for the final sum
 function calculate_error(){
   var final_sum=0;
@@ -26,18 +27,29 @@ function calculate_error(){
   }
   return final_sum;
 }
+
 function calculate(){
   var wei=generate_w();
   for(i=0; i<expected_ouputs.length; i++){
     signo_values.push(calculate_signoidal((inputs_xor[i][0]*wei[0])+(inputs_xor[i][1]*wei[1])));
+    ouput_of_weight.push(calculate_signoidal((inputs_xor[i][0]*wei[0])+(inputs_xor[i][1]*wei[1])));
   }
 }
 
+function verify_ouput(){
+    for(i in ouput_of_weight){
+      if(i>0.5)
+        final_ouputs.push(1);
+      else
+        final_ouputs.push(0);
+    }
+}
 function init(){
   calculate();
   if(final_errors.length<2){
     final_errors.push(calculate_error());
     signo_values.length=0;
+    ouput_of_weight.length=0;
     init();
   }else {
     console.log("First two numbers to compare ",final_errors);
@@ -47,6 +59,7 @@ function init(){
               final_errors.splice(0,1);
               console.log(final_errors);
               signo_values.length=0;
+              ouput_of_weight.length=0;
               calculate();
               final_errors.splice(0,0,calculate_error());
               count1++;
@@ -55,14 +68,15 @@ function init(){
               final_errors.splice(1,1);
               console.log(final_errors);
               signo_values.length=0;
+              ouput_of_weight.length=0;
               calculate();
               final_errors.splice(1,0,calculate_error());
               count0++;
               count1=0;
       }
     }
-
   }
+  verify_ouput();
 }
 
 //Initialize main
